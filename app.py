@@ -7,30 +7,38 @@ import os
 # Reduce TensorFlow logs
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-# Title
+# App Title
 st.title("✍️ Handwritten Digit Recognition (CNN)")
 st.write("Upload an image of a digit (0–9)")
 
-# Load model (cached)
+# Load model safely (FIXED)
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("mnist_cnn_model.h5")
+    return tf.keras.models.load_model("mnist_cnn_model.h5", compile=False)
 
 model = load_model()
 
-# Upload image
+# File uploader
 uploaded_file = st.file_uploader("Choose an image", type=["png", "jpg", "jpeg"])
 
 if uploaded_file is not None:
     try:
-        # Process image
+        # Open and convert image to grayscale
         image = Image.open(uploaded_file).convert('L')
+        
+        # Resize to 28x28
         image = image.resize((28, 28))
 
+        # Show uploaded image
         st.image(image, caption="Uploaded Image", width=150)
 
-        # Prepare for prediction
-        img_array = np.array(image) / 255.0
+        # Convert image to array
+        img_array = np.array(image)
+
+        # Normalize
+        img_array = img_array / 255.0
+
+        # Reshape for CNN
         img_array = img_array.reshape(1, 28, 28, 1)
 
         # Predict
@@ -43,11 +51,11 @@ if uploaded_file is not None:
         st.info(f"Confidence: {confidence:.2f}")
 
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error processing image: {e}")
 
 else:
-    st.warning("Please upload an image")
+    st.warning("Please upload an image to predict.")
 
 # Footer
 st.markdown("---")
-st.write("CNN Model trained on MNIST dataset (~98% accuracy)")
+st.write("Model: CNN trained on MNIST dataset (~98% accuracy)")
