@@ -11,28 +11,28 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 st.title("✍️ Handwritten Digit Recognition (CNN)")
 st.write("Upload an image of a digit (0–9)")
 
-# Load model safely (FIXED)
+# Load .keras model safely
 @st.cache_resource
 def load_model():
-    return tf.keras.models.load_model("mnist_cnn_model.h5", compile=False)
+    return tf.keras.models.load_model("mnist_model.keras")
 
 model = load_model()
 
-# File uploader
+# Upload image
 uploaded_file = st.file_uploader("Choose an image", type=["png", "jpg", "jpeg"])
 
 if uploaded_file is not None:
     try:
-        # Open and convert image to grayscale
+        # Convert to grayscale
         image = Image.open(uploaded_file).convert('L')
-        
+
         # Resize to 28x28
         image = image.resize((28, 28))
 
-        # Show uploaded image
+        # Show image
         st.image(image, caption="Uploaded Image", width=150)
 
-        # Convert image to array
+        # Convert to numpy array
         img_array = np.array(image)
 
         # Normalize
